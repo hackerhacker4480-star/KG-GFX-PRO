@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KG GFX PRO</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#071426;color:#fff;font-family:Arial,sans-serif}
+header{padding:20px;background:#0b1e38;border-bottom:1px solid #00cfff}
+h1{margin:0;color:#28d7ff}
+p{color:#a8c7e8}
+main{padding:16px;max-width:700px;margin:auto}
+.panel{background:#102440;border:1px solid #244c72;border-radius:14px;padding:16px;margin-bottom:14px}
+button{display:inline-block;padding:12px;border:0;border-radius:8px;background:#087cf0;color:white;margin:5px 0;font-weight:bold}
+input{max-width:100%;padding:10px;border-radius:6px}
+canvas{display:block;width:100%;height:auto;background:#fff;border-radius:8px;touch-action:none}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+label{display:block;margin:10px 0;color:#c5ddf7}
+</style>
+</head>
+<body>
+<header>
+<h1>KG GFX PRO</h1>
+<p>Professional Android Graphic Editor — Starter Version</p>
+</header>
+<main>
+<div class="panel">
+<h3>📂 फोटो उघडा</h3>
+<input id="file" type="file" accept="image/*">
+</div>
+<div class="panel">
+<h3>🎨 Design Canvas</h3>
+<canvas id="canvas" width="900" height="1100"></canvas>
+<div class="row">
+<button id="saveBtn">Export PNG</button>
+<button id="resetBtn">Reset</button>
+</div>
+<label>मजकूर <input id="text" value="KG GFX PRO"></label>
+<label>Text Colour <input id="color" type="color" value="#00cfff"></label>
+<label>Font Size <input id="size" type="range" min="20" max="150" value="60"></label>
+</div>
+<div class="panel">
+<h3>✨ Colour Adjustments</h3>
+<label>Brightness <input id="brightness" type="range" min="50" max="150" value="100"></label>
+<label>Contrast <input id="contrast" type="range" min="50" max="150" value="100"></label>
+<label>Saturation <input id="saturation" type="range" min="0" max="200" value="100"></label>
+</div>
+</main>
+<script>
+const canvas=document.getElementById('canvas');
+const ctx=canvas.getContext('2d');
+const file=document.getElementById('file');
+const text=document.getElementById('text');
+const color=document.getElementById('color');
+const size=document.getElementById('size');
+const brightness=document.getElementById('brightness');
+const contrast=document.getElementById('contrast');
+const saturation=document.getElementById('saturation');
+let photo=null;
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,canvas.width,canvas.height);
+  if(photo){
+    ctx.filter=`brightness(${brightness.value}%) contrast(${contrast.value}%) saturate(${saturation.value}%)`;
+    const scale=Math.max(canvas.width/photo.width,canvas.height/photo.height);
+    const w=photo.width*scale, h=photo.height*scale;
+    ctx.drawImage(photo,(canvas.width-w)/2,(canvas.height-h)/2,w,h);
+    ctx.filter='none';
+  }
+  ctx.fillStyle=color.value;
+  ctx.font=`bold ${size.value}px Arial`;
+  ctx.textAlign='center';
+  ctx.shadowColor='rgba(0,0,0,.55)';
+  ctx.shadowBlur=5;
+  ctx.fillText(text.value,canvas.width/2,canvas.height-100);
+  ctx.shadowBlur=0;
+}
+file.addEventListener('change',()=>{
+  if(!file.files[0]) return;
+  photo=new Image();
+  photo.onload=draw;
+  photo.src=URL.createObjectURL(file.files[0]);
+});
+[text,color,size,brightness,contrast,saturation].forEach(el=>el.addEventListener('input',draw));
+document.getElementById('saveBtn').onclick=()=>{
+  const a=document.createElement('a');
+  a.download='KG-GFX-PRO.png';
+  a.href=canvas.toDataURL('image/png');
+  a.click();
+};
+document.getElementById('resetBtn').onclick=()=>{
+  photo=null; file.value=''; text.value='KG GFX PRO';
+  color.value='#00cfff'; size.value=60;
+  brightness.value=100; contrast.value=100; saturation.value=100;
+  draw();
+};
+draw();
+</script>
+</body>
+</html>
